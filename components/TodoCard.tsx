@@ -15,7 +15,7 @@ const PARTICLE_COLORS = ['#00f5ff', '#bf00ff', '#ff006e', '#00ff88'];
 
 export default function TodoCard({ todo, onChanged }: TodoCardProps) {
   const supabase = createClient();
-  const cfg = PRIORITY_CONFIG[todo.priority];
+  const cfg = PRIORITY_CONFIG[todo.priority] ?? PRIORITY_CONFIG['medium'];
   const [particles, setParticles] = useState<number[]>([]);
 
   async function toggleComplete() {
