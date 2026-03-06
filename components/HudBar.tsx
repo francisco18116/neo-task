@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LogOut, Wifi } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import GlitchText from './GlitchText';
 
 interface HudBarProps {
   userEmail: string;
@@ -41,7 +42,7 @@ export default function HudBar({ userEmail }: HudBarProps) {
       <div className="flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-[#00f5ff] animate-glow-pulse" />
         <h1 className="font-orbitron text-lg font-black text-glow-cyan tracking-widest">
-          NEOTASK
+          <GlitchText text="NEOTASK" />
         </h1>
         <span className="font-orbitron text-[10px] text-white/20 tracking-widest hidden sm:block">
           v2.0

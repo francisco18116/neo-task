@@ -17,6 +17,16 @@ export interface PriorityConfig {
   text: string;
 }
 
+export type ActiveTab = 'todos' | 'calendar';
+
+export interface GoogleCalendarEvent {
+  id: string;
+  summary: string;
+  start: { dateTime?: string; date?: string };
+  end: { dateTime?: string; date?: string };
+  colorId?: string;
+}
+
 export const PRIORITY_CONFIG: Record<Priority, PriorityConfig> = {
   low: {
     label: 'LOW',

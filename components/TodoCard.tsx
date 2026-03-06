@@ -1,6 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Check } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Todo, PRIORITY_CONFIG } from '@/lib/types';
@@ -10,11 +11,18 @@ interface TodoCardProps {
   onChanged: () => void;
 }
 
+const PARTICLE_COLORS = ['#00f5ff', '#bf00ff', '#ff006e', '#00ff88'];
+
 export default function TodoCard({ todo, onChanged }: TodoCardProps) {
   const supabase = createClient();
   const cfg = PRIORITY_CONFIG[todo.priority];
+  const [particles, setParticles] = useState<number[]>([]);
 
   async function toggleComplete() {
+    if (!todo.completed) {
+      setParticles(Array.from({ length: 10 }, (_, i) => i));
+      setTimeout(() => setParticles([]), 800);
+    }
     await supabase
       .from('todos')
       .update({ completed: !todo.completed })
@@ -49,29 +57,61 @@ export default function TodoCard({ todo, onChanged }: TodoCardProps) {
         }}
       />
 
-      {/* Checkbox */}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={toggleComplete}
-        className="flex-shrink-0 w-6 h-6 rounded-sm border flex items-center justify-center transition-all duration-200"
-        style={{
-          borderColor: todo.completed ? cfg.color : `${cfg.color}50`,
-          background: todo.completed ? `${cfg.color}20` : 'transparent',
-          boxShadow: todo.completed ? `0 0 10px ${cfg.color}44` : 'none',
-        }}
-        aria-label={todo.completed ? 'Mark incomplete' : 'Mark complete'}
-      >
-        {todo.completed && (
-          <motion.div
-            initial={{ scale: 0, rotate: -90 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: 'spring', damping: 12 }}
-          >
-            <Check size={12} style={{ color: cfg.color }} />
-          </motion.div>
-        )}
-      </motion.button>
+      {/* Checkbox + particle burst */}
+      <div className="relative flex-shrink-0">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={toggleComplete}
+          className="w-6 h-6 rounded-sm border flex items-center justify-center transition-all duration-200"
+          style={{
+            borderColor: todo.completed ? cfg.color : `${cfg.color}50`,
+            background: todo.completed ? `${cfg.color}20` : 'transparent',
+            boxShadow: todo.completed ? `0 0 10px ${cfg.color}44` : 'none',
+          }}
+          aria-label={todo.completed ? 'Mark incomplete' : 'Mark complete'}
+        >
+          {todo.completed && (
+            <motion.div
+              initial={{ scale: 0, rotate: -90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', damping: 12 }}
+            >
+              <Check size={12} style={{ color: cfg.color }} />
+            </motion.div>
+          )}
+        </motion.button>
+        {/* Particles */}
+        <div className="absolute inset-0 pointer-events-none overflow-visible">
+          <AnimatePresence>
+            {particles.map((id) => {
+              const angle = (id / 10) * 360;
+              const distance = 28 + (id % 3) * 8;
+              const dx = Math.cos((angle * Math.PI) / 180) * distance;
+              const dy = Math.sin((angle * Math.PI) / 180) * distance;
+              const color = PARTICLE_COLORS[id % PARTICLE_COLORS.length];
+              return (
+                <motion.span
+                  key={id}
+                  initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                  animate={{ x: dx, y: dy, opacity: 0, scale: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  className="absolute w-1.5 h-1.5 rounded-full"
+                  style={{
+                    background: color,
+                    boxShadow: `0 0 6px ${color}`,
+                    top: '50%',
+                    left: '50%',
+                    marginTop: '-3px',
+                    marginLeft: '-3px',
+                  }}
+                />
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      </div>
 
       {/* Title */}
       <div className="flex-1 min-w-0">
