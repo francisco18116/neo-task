@@ -15,6 +15,7 @@ export default function AddTodoForm({ onAdded }: AddTodoFormProps) {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(false);
   const supabase = createClient();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,6 +38,8 @@ export default function AddTodoForm({ onAdded }: AddTodoFormProps) {
     setLoading(false);
     setOpen(false);
     onAdded();
+    setToast(true);
+    setTimeout(() => setToast(false), 3000);
   }
 
   return (
@@ -150,6 +153,20 @@ export default function AddTodoForm({ onAdded }: AddTodoFormProps) {
               </form>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-28 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-sm glass-strong border border-[#00f5ff]/40 text-[#00f5ff] font-orbitron text-xs tracking-widest glow-cyan"
+          >
+            Hi Santiago
+          </motion.div>
         )}
       </AnimatePresence>
     </>
